@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniBlog — Echoes of the Digital Age</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Syne', 'sans-serif'],
+                    },
+                    colors: {
+                        midnight: {
+                            DEFAULT: '#0a0a12',
+                            card: 'rgba(18, 18, 32, 0.6)',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                            light: '#161626'
+                        },
+                        gold: {
+                            light: '#f5e0b3',
+                            DEFAULT: '#dfb76c',
+                            dark: '#b8934d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0a0a12;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(223, 183, 108, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(29, 78, 216, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(18, 18, 32, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .glass-premium {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(223, 183, 108, 0.15);
+        }
+
+        .gold-glow:hover {
+            box-shadow: 0 0 20px rgba(223, 183, 108, 0.25);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* View State Controller Rules */
+        .app-view {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .app-view.view-active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom Scrollbar Engineering */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(223, 183, 108, 0.2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(223, 183, 108, 0.4);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <header class="sticky top-0 z-50 w-full glass-panel border-b border-midnight-border px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="Router.navigate('home')">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-gold-dark to-gold flex items-center justify-center text-midnight font-bold text-xl tracking-wider shadow-lg">
+                    Ω
+                </div>
+                <span class="font-display text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gold bg-clip-text text-transparent">
+                    OMNIBLOG
+                </span>
+            </div>
+
+            <nav class="flex items-center space-x-6">
+                <button onclick="Router.navigate('home')" class="text-gray-300 hover:text-gold transition-colors font-medium text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-house"></i> <span>Feed</span>
+                </button>
+                <button onclick="App.checkAuthProtected('create')" class="text-gray-300 hover:text-gold transition-colors font-medium text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-pen-to-square"></i> <span>Write</span>
+                </button>
+                
+                <div id="nav-auth-zone" class="flex items-center space-x-4">
+                    </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <section id="view-home" class="app-view view-active space-y-8">
+            <div class="p-8 sm:p-12 rounded-3xl glass-premium relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div class="space-y-4 max-w-2xl">
+                    <span class="text-xs font-bold tracking-widest text-gold uppercase bg-gold/10 px-3 py-1 rounded-full">Editorial Serverless Node</span>
+                    <h1 class="font-display text-4xl sm:text-5xl font-black text-white leading-tight">
+                        Where Autonomous Thought Meets Pure Engineering.
+                    </h1>
+                    <p class="text-gray-400 text-base max-w-lg">
+                        Explore architectural commentary, technology systems, and unhinged creativity decentralized completely into single-file state layers.
+                    </p>
+                </div>
+                <button onclick="App.checkAuthProtected('create')" class="px-6 py-3 bg-gradient-to-r from-gold via-gold to-gold-dark text-midnight font-bold rounded-xl gold-glow transition-all whitespace-nowrap self-stretch md:self-auto text-center">
+                    Publish Dynamic Entry
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-3 overflow-x-auto pb-2" id="category-filter-bar">
+                </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-6" id="blog-posts-container">
+                    </div>
+
+                <div class="space-y-6">
+                    <div class="p-6 rounded-2xl glass-panel space-y-4">
+                        <h3 class="font-display text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-circle-nodes text-gold"></i>
+                            <span>Serverless Runtime State</span>
+                        </h3>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            This build interfaces via asynchronous persistence loops. Deploy seamlessly to Vercel Edge Node execution platforms.
+                        </p>
+                        <div class="pt-2 border-t border-midnight-border space-y-2 text-xs">
+                            <div class="flex justify-between"><span class="text-gray-500">Node Connectivity:</span><span class="text-green-400 font-mono">Active LocalStorage Sync</span></div>
+                            <div class="flex justify-between"><span class="text-gray-500">Cloud Adaptability:</span><span class="text-gold font-mono">Pre-Wired API Matrix</span></div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 rounded-2xl glass-panel space-y-4">
+                        <h3 class="font-display text-lg font-bold text-white">Trending Metrics</h3>
+                        <div class="space-y-3" id="sidebar-trending-container">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-auth" class="app-view max-w-md mx-auto py-12">
+            <div class="p-8 rounded-2xl glass-premium space-y-6 shadow-2xl relative">
+                <div class="text-center space-y-2">
+                    <h2 id="auth-title" class="font-display text-3xl font-bold text-white">Access Identity Matrix</h2>
+                    <p id="auth-subtitle" class="text-gray-400 text-sm">Synchronize authorization session credentials</p>
+                </div>
+
+                <form id="auth-form" onsubmit="App.handleAuthSubmit(event)" class="space-y-4">
+                    <input type="hidden" id="auth-mode" value="login">
+                    
+                    <div id="auth-username-group" class="space-y-1 hidden">
+                        <label class="text-xs font-bold tracking-wider text-gray-400 uppercase">Username Handle</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500"><i class="fa-solid fa-at"></i></span>
+                            <input type="text" id="auth-username" class="w-full bg-midnight-light/50 border border-midnight-border rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-gold transition-colors text-sm">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold tracking-wider text-gray-400 uppercase">Email Protocol</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500"><i class="fa-solid fa-envelope"></i></span>
+                            <input type="email" id="auth-email" required class="w-full bg-midnight-light/50 border border-midnight-border rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-gold transition-colors text-sm">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold tracking-wider text-gray-400 uppercase">Security Passkey</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" id="auth-password" required class="w-full bg-midnight-light/50 border border-midnight-border rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-gold transition-colors text-sm">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-gold to-gold-dark text-midnight font-bold rounded-xl gold-glow transition-all mt-2 text-sm uppercase tracking-wider">
+                        Execute Initialization
+                    </button>
+                </form>
+
+                <div class="text-center pt-4 border-t border-midnight-border">
+                    <button onclick="App.toggleAuthMode()" id="auth-toggle-btn" class="text-xs text-gold hover:underline font-medium">
+                        Need an authorized profile? Register credentials here
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-create" class="app-view max-w-3xl mx-auto">
+            <div class="p-8 rounded-2xl glass-panel space-y-6">
+                <div class="flex justify-between items-center border-b border-midnight-border pb-4">
+                    <h2 class="font-display text-2xl font-bold text-white">Draft Editorial Content</h2>
+                    <button onclick="Router.navigate('home')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+
+                <form onsubmit="App.handleCreatePost(event)" class="space-y-5">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold tracking-wider text-gray-400 uppercase">Manifesto Title</label>
+                        <input type="text" id="post-title" required placeholder="e.g., The Implosion of Microservices in Serverless Landscapes" class="w-full bg-midnight-light/50 border border-midnight-border rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold transition-colors">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold tracking-wider text-gray-400 uppercase">Category Tag Selection</label>
+                            <select id="post-category" class="w-full bg-midnight-light border border-midnight-border rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold transition-colors text-sm">
+                                <option value="gaming">#gaming</option>
+                                <option value="tech">#tech</option>
+                                <option value="politics">#politics</option>
+                                <option value="design">#design</option>
+                                <option value="culture">#culture</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold tracking-wider text-gray-400 uppercase">Cover Visual Interface (Image URL)</label>
+                            <input type="url" id="post-image" placeholder="https://images.unsplash.com/photo-..." class="w-full bg-midnight-light/50 border border-midnight-border rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold transition-colors text-sm">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold tracking-wider text-gray-400 uppercase">Body Content Stream</label>
+                        <textarea id="post-content" required rows="10" placeholder="Inject markdown-capable editorial syntax and thoughts here..." class="w-full bg-midnight-light/50 border border-midnight-border rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold transition-colors font-sans text-sm leading-relaxed resize-none"></textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-4 border-t border-midnight-border">
+                        <button type="button" onclick="Router.navigate('home')" class="px-5 py-2.5 rounded-xl border border-midnight-border text-gray-400 hover:text-white transition-colors text-sm font-medium">
+                            Abort
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-gold to-gold-dark text-midnight font-bold rounded-xl gold-glow transition-all text-sm uppercase tracking-wider">
+                            Broadcast Stream
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section id="view-profile" class="app-view space-y-8">
+            <div id="profile-header-card" class="p-8 rounded-3xl glass-premium relative overflow-hidden">
+                </div>
+
+            <div class="space-y-6">
+                <h3 class="font-display text-xl font-bold text-white border-b border-midnight-border pb-2 flex items-center space-x-2">
+                    <i class="fa-solid fa-boxes-stacked text-gold text-sm"></i>
+                    <span>Owned Editorial Contributions</span>
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="profile-posts-container">
+                    </div>
+            </div>
+        </section>
+
+        <section id="view-edit-profile" class="app-view max-w-xl mx-auto">
+            <div class="p-8 rounded-2xl glass-panel space-y-6">
+                <div class="flex justify-between items-center border-b border-midnight-border pb-4">
+                    <h2 class="font-display text-2xl font-bold text-white">Re-Index Identity Parameters</h2>
+                    <button onclick="Router.navigate('profile')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+
+                <form onsubmit="App.handleEditProfile(event)" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold tracking-wider text-gray-400 uppercase">Display Nomenclature Name</label>
+                        <input type="text" id="edit-profile-name" required class="w-full bg-midnight-light/50 border border-midnight-border rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold transition-colors text-sm">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold tracking-wider text-gray-400 uppercase">Avatar Identity Matrix URL</label>
+                        <input type="url" id="edit-profile-avatar" class="w-full bg-midnight-light/50 border border-midnight-border rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold transition-colors text-sm">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold tracking-wider text-gray-400 uppercase">Biographical Descriptor Terminal</label>
+                        <textarea id="edit-profile-bio" rows="4" class="w-full bg-midnight-light/50 border border-midnight-border rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold transition-colors text-sm resize-none"></textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-4 border-t border-midnight-border">
+                        <button type="button" onclick="Router.navigate('profile')" class="px-5 py-2.5 rounded-xl border border-midnight-border text-gray-400 hover:text-white transition-colors text-sm">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-gold to-gold-dark text-midnight font-bold rounded-xl gold-glow transition-all text-sm uppercase tracking-wider">
+                            Commit Modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="w-full glass-panel border-t border-midnight-border py-6 px-6 mt-12 text-center text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>&copy; 2026 OMNIBLOG Engine Cluster. Distributed Sovereign Code.</div>
+            <div class="flex space-x-4">
+                <span class="hover:text-gold cursor-pointer">Protocol Specifications</span>
+                <span class="hover:text-gold cursor-pointer">Vercel Edge Gateway</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /**
+         * SERVERLESS ARCHITECTURAL NOTE FOR DEPLOYMENT:
+         * To replace this local high-fidelity simulation engine with a live serverless database:
+         * 1. Inject the SDK CDN into the document head:
+         * <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"><\/script>
+         * 2. Initialize connection configurations:
+         * const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY')
+         * 3. Swap out data layer synchronization functions (`StorageEngine.save`) with:
+         * await supabase.from('posts').insert([newPostData])
+         */
+
+        // Initial Real-World Visual Seed Population
+        const DEFAULT_SEED_POSTS = [
+            {
+                id: "post-seed-1",
+                title: "The Death of Traditional Matchmaking Engines in Modern FPS Systems",
+                content: "The current state of skill-based matchmaking (#SBMM) has homogenized competitive gaming. By structuring mechanical engagement tracking loops solely around commercial retention parameters rather than localized dynamic network pings, execution latency optimization drops. Developers must return to client-hosted regional node systems to allow structural community emergence. The degradation of sandbox variety across modern high-fidelity digital infrastructure marks an immediate loss for genuine player agency.",
+                category: "gaming",
+                image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+                authorId: "user-seed-1",
+                authorName: "ViperProtocol",
+                authorAvatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=150&q=80",
+                likes: ["user-seed-2"],
+                comments: [
+                    { id: "c1", authorName: "AlphaDev", content: "Completely factual analysis. Pure metrics tracking ruins raw organic multiplayer chaos.", timestamp: Date.now() - 3600000 }
+                ],
+                timestamp: Date.now() - 7200000
+            },
+            {
+                id: "post-seed-2",
+                title: "Configuring Hyper-Performant Vercel Serverless Pipelines on Edge Architectures",
+                content: "Deploying high-frequency single-file software clusters onto serverless infrastructure requires a radical rethinking of execution parameters. Moving logic routines into specialized edge configurations reduces execution overhead to absolute zero. By stripping bulky framework execution boundaries and rendering components inside a clean execution context, data arrays transfer instantly across globally synchronized data clusters.",
+                category: "tech",
+                image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+                authorId: "user-seed-2",
+                authorName: "SyntaxArchitect",
+                authorAvatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
+                likes: ["user-seed-1"],
+                comments: [],
+                timestamp: Date.now() - 86400000
+            }
+        ];
+
+        const DEFAULT_SEED_PROFILES = {
+            "user-seed-1": { name: "Viper Gaming Protocol", bio: "Low-level system designer and mechanical game systems analyst. Decrypting monetization patterns.", avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=150&q=80" },
+            "user-seed-2": { name: "Syntax Architect", bio: "Serverless execution maximalist and cloud systems technician specializing in globally distributed frameworks.", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" }
+        };
+
+        // 1. DATA TRANSLATION ENGINE (Storage Interface Layer)
+        class StorageEngine {
+            static get(key, fallback) {
+                const data = localStorage.getItem(`omniblog_${key}`);
+                return data ? JSON.parse(data) : fallback;
+            }
+            static save(key, data) {
+                localStorage.setItem(`omniblog_${key}`, JSON.stringify(data));
+            }
+            static init() {
+                if (!localStorage.getItem('omniblog_posts')) {
+                    this.save('posts', DEFAULT_SEED_POSTS);
+                }
+                if (!localStorage.getItem('omniblog_profiles')) {
+                    this.save('profiles', DEFAULT_SEED_PROFILES);
+                }
+            }
+        }
+
+        // 2. CLIENT ROUTING CONTROLLER MATRIX
+        class Router {
+            static navigate(viewId, params = null) {
+                document.querySelectorAll('.app-view').forEach(view => {
+                    view.classList.remove('view-active');
+                });
+                
+                const targetView = document.getElementById(`view-${viewId}`);
+                if (targetView) {
+                    targetView.classList.add('view-active');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                
+                this.currentView = viewId;
+                this.currentParams = params;
+
+                // Fire state updates dependent on active routing metrics
+                if (viewId === 'home') App.renderFeed();
+                if (viewId === 'profile') App.renderProfile(params);
+                if (viewId === 'edit-profile') App.populateEditProfileFields();
+            }
+        }
+
+        // 3. APPLICATION STATE ENGINE CONTROLLER
+        class App {
+            static init() {
+                StorageEngine.init();
+                this.posts = StorageEngine.get('posts', []);
+                this.profiles = StorageEngine.get('profiles', {});
+                this.currentUser = StorageEngine.get('session', null);
+                this.selectedCategoryFilter = 'all';
+
+                this.renderAuthNavigationState();
+                Router.navigate('home');
+                this.renderCategoryBar();
+            }
+
+            static syncState() {
+                StorageEngine.save('posts', this.posts);
+                StorageEngine.save('profiles', this.profiles);
+                StorageEngine.save('session', this.currentUser);
+                this.renderAuthNavigationState();
+            }
+
+            // Authentication & Account State Interlocking Logic
+            static renderAuthNavigationState() {
+                const container = document.getElementById('nav-auth-zone');
+                if (this.currentUser) {
+                    container.innerHTML = `
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2 cursor-pointer group" onclick="Router.navigate('profile', '${this.currentUser.id}')">
+                                <img src="${this.currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}" class="h-8 w-8 rounded-full border border-gold/40 group-hover:border-gold transition-colors object-cover">
+                                <span class="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">${this.currentUser.username}</span>
+                            </div>
+                            <button onclick="App.handleLogout()" class="p-2 text-gray-400 hover:text-red-400 transition-colors" title="De-authorize Session">
+                                <i class="fa-solid fa-power-off"></i>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <button onclick="Router.navigate('auth')" class="px-4 py-2 text-sm font-medium border border-gold text-gold rounded-xl hover:bg-gold hover:text-midnight transition-all">
+                            Initialize Session
+                        </button>
+                    `;
+                }
+            }
+
+            static toggleAuthMode() {
+                const modeInput = document.getElementById('auth-mode');
+                const title = document.getElementById('auth-title');
+                const subtitle = document.getElementById('auth-subtitle');
+                const usernameGroup = document.getElementById('auth-username-group');
+                const btn = document.getElementById('auth-toggle-btn');
+
+                if (modeInput.value === 'login') {
+                    modeInput.value = 'register';
+                    title.innerText = 'Establish Cloud Profile';
+                    subtitle.innerText = 'Register decentralized operational cryptographic signatures';
+                    usernameGroup.classList.remove('hidden');
+                    btn.innerText = 'Have an operational handle? Access entry credentials';
+                } else {
+                    modeInput.value = 'login';
+                    title.innerText = 'Access Identity Matrix';
+                    subtitle.innerText = 'Synchronize authorization session credentials';
+                    usernameGroup.classList.add('hidden');
+                    btn.innerText = 'Need an authorized profile? Register credentials here';
+                }
+            }
+
+            static handleAuthSubmit(e) {
+                e.preventDefault();
+                const mode = document.getElementById('auth-mode').value;
+                const email = document.getElementById('auth-email').value;
+                const password = document.getElementById('auth-password').value;
+                const username = document.getElementById('auth-username').value || email.split('@')[0];
+
+                if (mode === 'register') {
+                    const userId = 'user-' + Date.now();
+                    const newProfile = {
+                        id: userId,
+                        username: username,
+                        email: email,
+                        avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`,
+                        bio: "OmniBlog protocol user node initialized without detailed custom specifications."
+                    };
+                    
+                    this.profiles[userId] = { name: username, bio: newProfile.bio, avatar: newProfile.avatar };
+                    this.currentUser = newProfile;
+                    alert('Cryptographic Identity Node Configured Securely.');
+                } else {
+                    // Simulating a highly dynamic successful credentials matching pool
+                    const userId = 'user-' + username.length + 'seed'; 
+                    this.currentUser = {
+                        id: userId,
+                        username: username,
+                        email: email,
+                        avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`,
+                        bio: "Session verified via serverless dynamic response layer."
+                    };
+                    if (!this.profiles[userId]) {
+                        this.profiles[userId] = { name: username, bio: "Operational matrix explorer.", avatar: this.currentUser.avatar };
+                    }
+                }
+
+                document.getElementById('auth-form').reset();
+                this.syncState();
+                Router.navigate('home');
+            }
+
+            static handleLogout() {
+                this.currentUser = null;
+                this.syncState();
+                Router.navigate('home');
+            }
+
+            static checkAuthProtected(viewTarget) {
+                if (!this.currentUser) {
+                    alert('Requested action requires active network credentials. Redirecting to Auth Node.');
+                    Router.navigate('auth');
+                    return;
+                }
+                Router.navigate(viewTarget);
+            }
+
+            // Category Rendering Filtering System Logic
+            static renderCategoryBar() {
+                const categories = ['all', 'gaming', 'tech', 'politics', 'design', 'culture'];
+                const bar = document.getElementById('category-filter-bar');
+                bar.innerHTML = categories.map(cat => {
+                    const activeClass = this.selectedCategoryFilter === cat 
+                        ? 'bg-gold text-midnight border-transparent font-bold' 
+                        : 'bg-midnight-light/40 text-gray-400 border-midnight-border hover:text-white hover:border-gray-600';
+                    return `
+                        <button onclick="App.setCategoryFilter('${cat}')" class="px-4 py-1.5 text-xs uppercase tracking-wider rounded-lg border transition-all whitespace-nowrap ${activeClass}">
+                            ${cat === 'all' ? 'All Channels' : '#' + cat}
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            static setCategoryFilter(cat) {
+                this.selectedCategoryFilter = cat;
+                this.renderCategoryBar();
+                this.renderFeed();
+            }
+
+            // Global Content Rendering Algorithms
+            static renderFeed() {
+                const container = document.getElementById('blog-posts-container');
+                const filteredPosts = this.selectedCategoryFilter === 'all' 
+                    ? this.posts 
+                    : this.posts.filter(p => p.category === this.selectedCategoryFilter);
+
+                // Re-sort chronological ordering streams
+                filteredPosts.sort((a, b) => b.timestamp - a.timestamp);
+
+                if (filteredPosts.length === 0) {
+                    container.innerHTML = `
+                        <div class="p-12 text-center glass-panel rounded-2xl border border-dashed border-midnight-border">
+                            <i class="fa-solid fa-folder-open text-gray-600 text-3xl mb-3"></i>
+                            <p class="text-gray-400 text-sm">No synchronized logs found in the #${this.selectedCategoryFilter} channel matrix.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = filteredPosts.map(post => {
+                    const likedByMe = this.currentUser && post.likes.includes(this.currentUser.id);
+                    const profileData = this.profiles[post.authorId] || { name: post.authorName, avatar: post.authorAvatar, bio: "" };
+                    
+                    return `
+                        <article class="p-6 rounded-2xl glass-panel space-y-4 hover:border-gray-700 transition-all group relative overflow-hidden">
+                            ${post.image ? `
+                                <div class="w-full h-48 sm:h-64 rounded-xl overflow-hidden relative">
+                                    <img src="${post.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                    <span class="absolute top-4 right-4 text-xs font-bold uppercase tracking-widest bg-midnight/80 backdrop-blur-md px-3 py-1 rounded-md text-gold border border-gold/20">
+                                        #${post.category}
+                                    </span>
+                                </div>
+                            ` : ''}
+
+                            <div class="space-y-2">
+                                <h2 class="font-display text-xl sm:text-2xl font-bold text-white leading-snug group-hover:text-gold transition-colors">
+                                    ${post.title}
+                                </h2>
+                                <p class="text-gray-400 text-sm leading-relaxed line-clamp-3">
+                                    ${post.content}
+                                </p>
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-midnight-border text-xs">
+                                <div class="flex items-center space-x-3 cursor-pointer" onclick="Router.navigate('profile', '${post.authorId}')">
+                                    <img src="${profileData.avatar}" class="h-8 w-8 rounded-full object-cover border border-midnight-border">
+                                    <div>
+                                        <div class="text-gray-200 font-medium hover:text-gold transition-colors">${profileData.name}</div>
+                                        <div class="text-gray-500">${new Date(post.timestamp).toLocaleDateString()}</div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center space-x-4">
+                                    <button onclick="App.handleToggleLike('${post.id}')" class="flex items-center space-x-1.5 transition-colors ${likedByMe ? 'text-red-400' : 'text-gray-400 hover:text-red-400'}">
+                                        <i class="${likedByMe ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                                        <span>${post.likes.length}</span>
+                                    </button>
+                                    <div class="text-gray-500 flex items-center space-x-1.5">
+                                        <i class="fa-regular fa-comment"></i>
+                                        <span>${post.comments.length}</span>
+                                    </div>
+                                    
+                                    ${this.currentUser && (this.currentUser.id === post.authorId) ? `
+                                        <button onclick="App.handleDeletePost('${post.id}')" class="text-gray-500 hover:text-red-400 transition-colors" title="Purge Record">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-4 border-t border-midnight-border bg-midnight-light/30 rounded-xl p-4 space-y-3">
+                                <div class="max-h-32 overflow-y-auto space-y-2 pr-1">
+                                    ${post.comments.length === 0 ? '<div class="text-gray-600 italic text-2xs">No entries currently recorded.</div>' : ''}
+                                    ${post.comments.map(c => `
+                                        <div class="bg-midnight/40 p-2 rounded-lg text-2xs border border-midnight-border/50">
+                                            <span class="font-bold text-gold/90">${c.authorName}:</span> 
+                                            <span class="text-gray-300">${c.content}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="comment-input-${post.id}" placeholder="Write response node..." class="w-full bg-midnight border border-midnight-border rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-gold">
+                                    <button onclick="App.handleAddComment('${post.id}')" class="px-3 bg-gold/10 hover:bg-gold text-gold hover:text-midnight border border-gold/30 hover:border-transparent rounded-lg transition-colors text-xs font-bold">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+
+                this.renderSidebarTrending();
+            }
+
+            static renderSidebarTrending() {
+                const container = document.getElementById('sidebar-trending-container');
+                const dynamicSorted = [...this.posts].sort((a, b) => b.likes.length - a.likes.length).slice(0, 3);
+
+                container.innerHTML = dynamicSorted.map((p, index) => `
+                    <div class="flex items-start space-x-3 cursor-pointer group" onclick="Router.navigate('home')">
+                        <span class="font-display font-black text-xl text-gray-700 group-hover:text-gold transition-colors">0${index+1}</span>
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-200 line-clamp-1 group-hover:underline">${p.title}</h4>
+                            <span class="text-2xs text-gold/70">#${p.category} • ${p.likes.length} validations</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Interactive Dynamic Operational Handlers
+            static handleCreatePost(e) {
+                e.preventDefault();
+                if (!this.currentUser) return;
+
+                const title = document.getElementById('post-title').value;
+                const category = document.getElementById('post-category').value;
+                const content = document.getElementById('post-content').value;
+                let image = document.getElementById('post-image').value;
+
+                if (!image) {
+                    image = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80";
+                }
+
+                const newPost = {
+                    id: 'post-' + Date.now(),
+                    title,
+                    content,
+                    category,
+                    image,
+                    authorId: this.currentUser.id,
+                    authorName: this.currentUser.username,
+                    authorAvatar: this.currentUser.avatar,
+                    likes: [],
+                    comments: [],
+                    timestamp: Date.now()
+                };
+
+                this.posts.unshift(newPost);
+                this.syncState();
+                Router.navigate('home');
+            }
+
+            static handleDeletePost(id) {
+                if (!confirm("Confirm immediate administrative purge sequence on selected entry log?")) return;
+                this.posts = this.posts.filter(p => p.id !== id);
+                this.syncState();
+                
+                if (Router.currentView === 'profile') {
+                    Router.navigate('profile', Router.currentParams);
+                } else {
+                    this.renderFeed();
+                }
+            }
+
+            static handleToggleLike(id) {
+                if (!this.currentUser) {
+                    alert('Action requires authorized registration node access.');
+                    Router.navigate('auth');
+                    return;
+                }
+                const post = this.posts.find(p => p.id === id);
+                if (post) {
+                    const index = post.likes.indexOf(this.currentUser.id);
+                    if (index > -1) {
+                        post.likes.splice(index, 1);
+                    } else {
+                        post.likes.push(this.currentUser.id);
+                    }
+                    this.syncState();
+                    if (Router.currentView === 'profile') {
+                        Router.navigate('profile', Router.currentParams);
+                    } else {
+                        this.renderFeed();
+                    }
+                }
+            }
+
+            static handleAddComment(postId) {
+                if (!this.currentUser) {
+                    alert('Comment pipeline deployment requires active session authentication.');
+                    Router.navigate('auth');
+                    return;
+                }
+                const input = document.getElementById(`comment-input-${postId}`);
+                if (!input.value.trim()) return;
+
+                const post = this.posts.find(p => p.id === postId);
+                if (post) {
+                    post.comments.push({
+                        id: 'c-' + Date.now(),
+                        authorName: this.currentUser.username,
+                        content: input.value.trim(),
+                        timestamp: Date.now()
+                    });
+                    input.value = '';
+                    this.syncState();
+                    if (Router.currentView === 'profile') {
+                        Router.navigate('profile', Router.currentParams);
+                    } else {
+                        this.renderFeed();
+                    }
+                }
+            }
+
+            // User Profile Aggregation and Management Processing
+            static renderProfile(authorId) {
+                const isMe = this.currentUser && this.currentUser.id === authorId;
+                const profileData = this.profiles[authorId] || (isMe ? { name: this.currentUser.username, bio: this.currentUser.bio, avatar: this.currentUser.avatar } : null);
+
+                if (!profileData) {
+                    document.getElementById('profile-header-card').innerHTML = `<p class="text-center text-gray-400">Target identity cluster unresolved.</p>`;
+                    return;
+                }
+
+                const authorPosts = this.posts.filter(p => p.authorId === authorId);
+                const headerContainer = document.getElementById('profile-header-card');
+                
+                headerContainer.innerHTML = `
+                    <div class="flex flex-col sm:flex-row items-center gap-6 relative z-10">
+                        <img src="${profileData.avatar}" class="h-24 w-24 rounded-2xl object-cover border-2 border-gold shadow-xl">
+                        <div class="space-y-2 flex-grow text-center sm:text-left">
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-3 justify-center sm:justify-start">
+                                <h2 class="font-display text-3xl font-bold text-white">${profileData.name}</h2>
+                                <span class="text-2xs text-gold font-mono bg-gold/10 px-2 py-0.5 rounded border border-gold/20 self-center">ID Node: ${authorId.substring(0,8)}</span>
+                            </div>
+                            <p class="text-gray-400 text-sm max-w-xl">${profileData.bio}</p>
+                            <div class="flex gap-4 justify-center sm:justify-start text-xs pt-1 text-gray-500">
+                                <span><strong class="text-white">${authorPosts.length}</strong> broadcasts</span>
+                                <span><strong class="text-white">${authorPosts.reduce((acc, p) => acc + p.likes.length, 0)}</strong> authorizations</span>
+                            </div>
+                        </div>
+                        ${isMe ? `
+                            <button onclick="Router.navigate('edit-profile')" class="px-4 py-2 text-xs border border-gray-600 rounded-xl hover:border-gold hover:text-gold transition-colors font-bold tracking-wider uppercase">
+                                Configure Parameters
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
+                // Render specific posts grid
+                const postContainer = document.getElementById('profile-posts-container');
+                if (authorPosts.length === 0) {
+                    postContainer.innerHTML = `<div class="p-8 text-center text-gray-500 glass-panel rounded-xl col-span-2">No individual ledger broadcasts found.</div>`;
+                    return;
+                }
+
+                postContainer.innerHTML = authorPosts.map(post => `
+                    <div class="p-5 rounded-xl glass-panel space-y-3 relative group">
+                        <h4 class="font-display text-base font-bold text-white line-clamp-1">${post.title}</h4>
+                        <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed">${post.content}</p>
+                        <div class="flex justify-between items-center text-2xs pt-2 text-gray-500">
+                            <span>${new Date(post.timestamp).toLocaleDateString()} in <strong>#${post.category}</strong></span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-red-400"><i class="fa-solid fa-heart"></i> ${post.likes.length}</span>
+                                ${isMe ? `
+                                    <button onclick="App.handleDeletePost('${post.id}')" class="text-gray-500 hover:text-red-400 transition-colors ml-2">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            static populateEditProfileFields() {
+                if (!this.currentUser) return;
+                const profileData = this.profiles[this.currentUser.id] || { name: this.currentUser.username, avatar: this.currentUser.avatar, bio: this.currentUser.bio };
+                
+                document.getElementById('edit-profile-name').value = profileData.name;
+                document.getElementById('edit-profile-avatar').value = profileData.avatar;
+                document.getElementById('edit-profile-bio').value = profileData.bio;
+            }
+
+            static handleEditProfile(e) {
+                e.preventDefault();
+                if (!this.currentUser) return;
+
+                const name = document.getElementById('edit-profile-name').value;
+                const avatar = document.getElementById('edit-profile-avatar').value;
+                const bio = document.getElementById('edit-profile-bio').value;
+
+                this.profiles[this.currentUser.id] = { name, avatar, bio };
+                this.currentUser.username = name;
+                this.currentUser.avatar = avatar;
+                this.currentUser.bio = bio;
+
+                this.syncState();
+                Router.navigate('profile', this.currentUser.id);
+            }
+        }
+
+        // Initialize Runtime Compilation on Load Engine Execution
+        window.addEventListener('DOMContentLoaded', () => App.init());
+    </script>
+</body>
+</html>
